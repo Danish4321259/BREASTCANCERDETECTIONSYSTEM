@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Model Performance Dashboard - Breast Cancer Detection System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Dashboard Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+      <h2 class="fw-bold text-navy mb-1">
+        <i class="bi bi-speedometer2 text-primary me-2"></i> Model Performance &amp; Evaluation Dashboard
+      </h2>
+      <p class="text-secondary mb-0">
+        Empirical evaluation of 6 Machine Learning algorithms and 1 Deep Learning Artificial Neural Network on the held-out test cohort (N=114).
+      </p>
+    </div>
+    <div class="mt-3 mt-md-0">
+      <span class="badge bg-success bg-opacity-10 text-success border border-success p-2 px-3 fw-semibold">
+        <i class="bi bi-check2-circle me-1"></i> Pre-Trained &amp; Serialized
+      </span>
+    </div>
+  </div>
+
+  <!-- Dataset & Cohort Statistics Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="text-secondary small fw-bold text-uppercase">Total Dataset Size</div>
+        <div class="fs-2 fw-bolder text-dark">569 Cases</div>
+        <div class="small text-muted">Wisconsin Diagnostic FNA</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="text-secondary small fw-bold text-uppercase">Malignant (Class 1)</div>
+        <div class="fs-2 fw-bolder text-danger">212 (37.3%)</div>
+        <div class="small text-muted">Target Positive Class</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="text-secondary small fw-bold text-uppercase">Benign (Class 0)</div>
+        <div class="fs-2 fw-bolder text-success">357 (62.7%)</div>
+        <div class="small text-muted">Target Negative Class</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="text-secondary small fw-bold text-uppercase">Test Set (80:20 Split)</div>
+        <div class="fs-2 fw-bolder text-primary">114 Cases</div>
+        <div class="small text-muted">42 Malignant, 72 Benign</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Priority Clinical Rationale Alert -->
+  <div class="alert alert-primary bg-primary bg-opacity-10 border-primary border-opacity-25 d-flex align-items-start gap-3 mb-4">
+    <i class="bi bi-info-circle-fill fs-4 text-primary flex-shrink-0"></i>
+    <div>
+      <h6 class="fw-bold mb-1 text-primary">Clinical Metric Priority: Sensitivity (Recall for Malignant Cases)</h6>
+      <p class="mb-0 small text-secondary">
+        In oncology screening, <strong>False Negatives (FN)</strong> represent malignant cancers mistakenly diagnosed as benign, resulting in delayed staging and poor prognosis. <strong>False Positives (FP)</strong> trigger confirmatory needle biopsies. Therefore, our model selection criteria strictly penalize false negatives by weighting <strong>Sensitivity (Recall)</strong> and <strong>ROC-AUC</strong> highest.
+      </p>
+    </div>
+  </div>
+
+  <!-- Complete Model Comparison Table -->
+  <div class="card border-0 shadow-sm rounded-4 mb-5 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold text-navy mb-0">
+        <i class="bi bi-table text-primary me-2"></i> Comprehensive Model Comparison Table (Held-Out Test Set)
+      </h5>
+      <span class="badge bg-primary">Sorted by Sensitivity &amp; ROC-AUC</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 small text-center table-custom">
+        <thead>
+          <tr>
+            <th class="text-start ps-3">Model Architecture</th>
+            <th>Type</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th class="table-danger text-danger fw-bold">Sensitivity (Recall)</th>
+            <th>Specificity</th>
+            <th>F1-Score</th>
+            <th class="table-primary text-primary fw-bold">ROC-AUC</th>
+            <th>TP / FN</th>
+            <th>TN / FP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if metrics and metrics.models %}
+            {% for m in metrics.models %}
+            <tr {% if loop.first %}class="table-warning bg-opacity-25 fw-semibold"{% endif %}>
+              <td class="text-start ps-3">
+                {% if loop.first %}<span class="badge bg-warning text-dark me-1">Best Overall</span>{% endif %}
+                <strong>{{ m['Model'] }}</strong>
+              </td>
+              <td><span class="badge {% if m['Type'] == 'Deep Learning' %}bg-danger{% else %}bg-secondary{% endif %}">{{ m['Type'] }}</span></td>
+              <td class="fw-bold">{{ (m['Accuracy'] * 100)|round(2) }}%</td>
+              <td>{{ (m['Precision'] * 100)|round(2) }}%</td>
+              <td class="text-danger fw-bolder">{{ (m['Recall (Sensitivity)'] * 100)|round(2) }}%</td>
+              <td>{{ (m['Specificity'] * 100)|round(2) }}%</td>
+              <td>{{ (m['F1-Score'] * 100)|round(2) }}%</td>
+              <td class="text-primary fw-bolder">{{ m['ROC-AUC']|round(4) }}</td>
+              <td><span class="text-success fw-bold">{{ m['TP'] }}</span> / <span class="text-danger fw-bold">{{ m['FN'] }}</span></td>
+              <td><span class="text-success fw-bold">{{ m['TN'] }}</span> / <span class="text-danger fw-bold">{{ m['FP'] }}</span></td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="10" class="text-muted py-3">Metrics loading or unavailable.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Visualization Charts Section -->
+  <div class="row g-4 mb-5">
+    
+    <!-- ROC Curves -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="fw-bold text-navy mb-0">
+            <i class="bi bi-graph-up text-primary me-2"></i> Receiver Operating Characteristic (ROC) Curves
+          </h5>
+          <small class="text-muted">Sensitivity vs. (1 - Specificity) across decision thresholds</small>
+        </div>
+        <div class="card-body p-3 text-center">
+          <img src="{{ url_for('static', filename='images/roc_curves.png') }}" class="img-fluid rounded shadow-sm" alt="ROC Curves Comparison" style="max-height: 420px; object-fit: contain;" />
+          <p class="small text-muted mt-2 mb-0">
+            Support Vector Machine and ANN achieve top ROC-AUC scores (0.9947 and 0.9937), demonstrating near-perfect discriminative capability.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Precision, Recall, F1 Grouped Chart -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="fw-bold text-navy mb-0">
+            <i class="bi bi-bar-chart text-success me-2"></i> Clinical Metric Comparison
+          </h5>
+          <small class="text-muted">Precision, Sensitivity (Recall), and F1-Score breakdown</small>
+        </div>
+        <div class="card-body p-3 text-center">
+          <img src="{{ url_for('static', filename='images/precision_recall_f1_comparison.png') }}" class="img-fluid rounded shadow-sm" alt="Precision Recall F1 Comparison" style="max-height: 420px; object-fit: contain;" />
+          <p class="small text-muted mt-2 mb-0">
+            SVM and ANN achieve 95.24% sensitivity (only 2 false negatives out of 42 malignant cases) with 100% precision.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row g-4 mb-5">
+    <!-- Confusion Matrices Plot -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="fw-bold text-navy mb-0">
+            <i class="bi bi-grid-3x3 text-info me-2"></i> Confusion Matrices (Test Cohort N=114)
+          </h5>
+          <small class="text-muted">Observed counts: True Negatives (TN), False Positives (FP), False Negatives (FN), True Positives (TP)</small>
+        </div>
+        <div class="card-body p-3 text-center">
+          <img src="{{ url_for('static', filename='images/confusion_matrices.png') }}" class="img-fluid rounded shadow-sm" alt="Confusion Matrices" style="max-height: 420px; object-fit: contain;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ANN Training Curves -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="fw-bold text-navy mb-0">
+            <i class="bi bi-bezier2 text-danger me-2"></i> Artificial Neural Network Training Curves
+          </h5>
+          <small class="text-muted">Training vs. Validation Loss and Accuracy across Epochs with Early Stopping</small>
+        </div>
+        <div class="card-body p-3 text-center">
+          <img src="/results/ann_training_curves.png" onerror="this.src='{{ url_for('static', filename='images/accuracy_comparison.png') }}'" class="img-fluid rounded shadow-sm" alt="ANN Training Curves" style="max-height: 420px; object-fit: contain;" />
+          <p class="small text-muted mt-2 mb-0">
+            Trained with Adam optimizer and Binary Cross-Entropy loss. Early stopping restored weights at epoch 22 (val_loss = 0.0775).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="text-center pb-4">
+    <a href="{{ url_for('predict') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+      <i class="bi bi-arrow-right-circle me-1"></i> Test Models on Custom Sample
+    </a>
+  </div>
+
+</div>
+{% endblock %}

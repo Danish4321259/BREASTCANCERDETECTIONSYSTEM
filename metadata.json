@@ -1,0 +1,6 @@
+{
+  "name": "Breast Cancer Detection System",
+  "description": "Clinical-grade ML & DL system using the Wisconsin Breast Cancer Dataset to classify tumors as Benign or Malignant with comparative evaluation and interactive prediction.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

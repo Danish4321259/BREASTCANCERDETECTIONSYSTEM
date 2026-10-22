@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Predict - Breast Cancer Detection System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+      <h2 class="fw-bold text-navy mb-1">
+        <i class="bi bi-ui-checks text-primary me-2"></i> Tumor Feature Input &amp; Classification
+      </h2>
+      <p class="text-secondary mb-0">
+        Input the 30 cytological measurements extracted from digitized fine needle aspirate (FNA) images.
+      </p>
+    </div>
+
+    <!-- Quick Load Demo Buttons -->
+    <div class="mt-3 mt-md-0 d-flex gap-2">
+      <button type="button" id="btn-load-benign" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm">
+        <i class="bi bi-shield-check me-1"></i> Load Benign Sample
+      </button>
+      <button type="button" id="btn-load-malignant" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">
+        <i class="bi bi-exclamation-octagon me-1"></i> Load Malignant Sample
+      </button>
+      <button type="button" id="btn-reset-form" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic Alert Area for Sample Loading and Validation -->
+  <div id="sample-alert"></div>
+
+  {% if errors %}
+  <div class="alert alert-danger shadow-sm mb-4">
+    <h6 class="fw-bold d-flex align-items-center gap-2 mb-2">
+      <i class="bi bi-x-circle-fill text-danger"></i> Please correct the following errors:
+    </h6>
+    <ul class="mb-0 small ps-3">
+      {% for err in errors %}
+      <li>{{ err }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Prediction Form -->
+  <form id="prediction-form" method="POST" action="{{ url_for('predict') }}">
+    
+    <!-- Model Selection Bar -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-light">
+      <div class="card-body p-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-gear-wide-connected text-primary fs-4"></i>
+          <div>
+            <div class="fw-bold text-dark">Selected Classification Engine</div>
+            <div class="text-muted small">Choose between our optimized ensemble or individual algorithms</div>
+          </div>
+        </div>
+        <div class="col-md-5 col-12">
+          <select name="model_choice" class="form-select border-primary fw-semibold" id="model-choice-select">
+            <option value="best" {% if selected_model == 'best' %}selected{% endif %}>
+              ⭐ Best Model (SVM - 98.25% Acc, 95.24% Sensitivity) [Recommended]
+            </option>
+            <option value="ann" {% if selected_model == 'ann' %}selected{% endif %}>
+              🧠 Deep Learning ANN (Keras - 98.25% Acc, 95.24% Sensitivity)
+            </option>
+            <option value="svm" {% if selected_model == 'svm' %}selected{% endif %}>
+              Support Vector Machine (RBF Kernel)
+            </option>
+            <option value="logistic_regression" {% if selected_model == 'logistic_regression' %}selected{% endif %}>
+              Logistic Regression (L2 Regularized)
+            </option>
+            <option value="random_forest" {% if selected_model == 'random_forest' %}selected{% endif %}>
+              Random Forest Classifier (150 Estimators)
+            </option>
+            <option value="gradient_boosting" {% if selected_model == 'gradient_boosting' %}selected{% endif %}>
+              Gradient Boosting Classifier
+            </option>
+            <option value="knn" {% if selected_model == 'knn' %}selected{% endif %}>
+              K-Nearest Neighbors (K=5 Distance-Weighted)
+            </option>
+            <option value="decision_tree" {% if selected_model == 'decision_tree' %}selected{% endif %}>
+              Decision Tree Classifier (Max Depth=5)
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Groups Tabbed / Card View -->
+    <div class="row g-4">
+      
+      <!-- Group 1: Mean Measurements -->
+      <div class="col-lg-4 col-md-12">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="feature-group-header mb-0">1. Nuclear Means (Mean Values)</h5>
+            <small class="text-muted">Average morphological traits across sampled cell nuclei</small>
+          </div>
+          <div class="card-body p-3">
+            {% for feature in feature_groups['Nuclear Means'] %}
+            <div class="mb-3">
+              <label for="input-{{ feature|replace(' ', '_') }}" class="form-label small fw-semibold text-dark mb-1 d-flex justify-content-between">
+                <span>{{ feature|title }}</span>
+                {% if feature in benchmarks %}
+                <span class="text-muted" style="font-size: 0.75rem;">Norm: ~{{ benchmarks[feature]['benign_mean'] }} {{ benchmarks[feature]['unit'] }}</span>
+                {% endif %}
+              </label>
+              <input 
+                type="number" 
+                step="any" 
+                class="form-control form-control-sm" 
+                id="input-{{ feature|replace(' ', '_') }}" 
+                name="{{ feature }}" 
+                value="{{ form_values.get(feature, '') }}" 
+                placeholder="Enter {{ feature }}"
+                required 
+              />
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Group 2: Standard Errors -->
+      <div class="col-lg-4 col-md-12">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="feature-group-header mb-0">2. Standard Errors (SE)</h5>
+            <small class="text-muted">Variability and measurement dispersion among nuclei</small>
+          </div>
+          <div class="card-body p-3">
+            {% for feature in feature_groups['Standard Errors (SE)'] %}
+            <div class="mb-3">
+              <label for="input-{{ feature|replace(' ', '_') }}" class="form-label small fw-semibold text-dark mb-1">
+                {{ feature|title }}
+              </label>
+              <input 
+                type="number" 
+                step="any" 
+                class="form-control form-control-sm" 
+                id="input-{{ feature|replace(' ', '_') }}" 
+                name="{{ feature }}" 
+                value="{{ form_values.get(feature, '') }}" 
+                placeholder="Enter {{ feature }}"
+                required 
+              />
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Group 3: Worst Measurements -->
+      <div class="col-lg-4 col-md-12">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="feature-group-header mb-0">3. Worst / Largest Measurements</h5>
+            <small class="text-muted">Mean of the 3 largest cell nuclei in the aspirate specimen</small>
+          </div>
+          <div class="card-body p-3">
+            {% for feature in feature_groups['Worst / Largest Measurements'] %}
+            <div class="mb-3">
+              <label for="input-{{ feature|replace(' ', '_') }}" class="form-label small fw-semibold text-dark mb-1 d-flex justify-content-between">
+                <span>{{ feature|title }}</span>
+                {% if feature in benchmarks %}
+                <span class="text-muted" style="font-size: 0.75rem;">Norm: ~{{ benchmarks[feature]['benign_mean'] }} {{ benchmarks[feature]['unit'] }}</span>
+                {% endif %}
+              </label>
+              <input 
+                type="number" 
+                step="any" 
+                class="form-control form-control-sm" 
+                id="input-{{ feature|replace(' ', '_') }}" 
+                name="{{ feature }}" 
+                value="{{ form_values.get(feature, '') }}" 
+                placeholder="Enter {{ feature }}"
+                required 
+              />
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Action Bar -->
+    <div class="card border-0 shadow-sm rounded-4 mt-4 p-4 text-center bg-white">
+      <div class="d-flex flex-wrap justify-content-center align-items-center gap-3">
+        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow">
+          <i class="bi bi-cpu me-2"></i> Run Tumor Classification
+        </button>
+        <button type="button" id="btn-reset-form-2" class="btn btn-outline-secondary btn-lg rounded-pill px-4" onclick="document.getElementById('btn-reset-form').click()">
+          <i class="bi bi-x-circle me-1"></i> Clear Fields
+        </button>
+      </div>
+      <div class="mt-3 text-muted small">
+        <i class="bi bi-shield-lock me-1"></i> Inputs are standardized with our pre-fitted <code>StandardScaler</code> pipeline and passed directly to the model.
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

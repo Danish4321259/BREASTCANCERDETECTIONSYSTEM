@@ -1,0 +1,110 @@
+{
+  "dataset": "Wisconsin Diagnostic Breast Cancer (WDBC)",
+  "test_samples": 114,
+  "test_distribution": {
+    "malignant": 42,
+    "benign": 72
+  },
+  "models": [
+    {
+      "Model": "Support Vector Machine",
+      "Type": "Machine Learning",
+      "Accuracy": 0.9825,
+      "Precision": 1.0,
+      "Recall (Sensitivity)": 0.9524,
+      "Specificity": 1.0,
+      "F1-Score": 0.9756,
+      "ROC-AUC": 0.9947,
+      "TP": 40,
+      "TN": 72,
+      "FP": 0,
+      "FN": 2
+    },
+    {
+      "Model": "Artificial Neural Network (ANN)",
+      "Type": "Deep Learning",
+      "Accuracy": 0.9825,
+      "Precision": 1.0,
+      "Recall (Sensitivity)": 0.9524,
+      "Specificity": 1.0,
+      "F1-Score": 0.9756,
+      "ROC-AUC": 0.9937,
+      "TP": 40,
+      "TN": 72,
+      "FP": 0,
+      "FN": 2
+    },
+    {
+      "Model": "Logistic Regression",
+      "Type": "Machine Learning",
+      "Accuracy": 0.9649,
+      "Precision": 0.975,
+      "Recall (Sensitivity)": 0.9286,
+      "Specificity": 0.9861,
+      "F1-Score": 0.9512,
+      "ROC-AUC": 0.996,
+      "TP": 39,
+      "TN": 71,
+      "FP": 1,
+      "FN": 3
+    },
+    {
+      "Model": "Random Forest",
+      "Type": "Machine Learning",
+      "Accuracy": 0.9649,
+      "Precision": 1.0,
+      "Recall (Sensitivity)": 0.9048,
+      "Specificity": 1.0,
+      "F1-Score": 0.95,
+      "ROC-AUC": 0.9947,
+      "TP": 38,
+      "TN": 72,
+      "FP": 0,
+      "FN": 4
+    },
+    {
+      "Model": "Gradient Boosting",
+      "Type": "Machine Learning",
+      "Accuracy": 0.9649,
+      "Precision": 1.0,
+      "Recall (Sensitivity)": 0.9048,
+      "Specificity": 1.0,
+      "F1-Score": 0.95,
+      "ROC-AUC": 0.9947,
+      "TP": 38,
+      "TN": 72,
+      "FP": 0,
+      "FN": 4
+    },
+    {
+      "Model": "K-Nearest Neighbors",
+      "Type": "Machine Learning",
+      "Accuracy": 0.9561,
+      "Precision": 0.9744,
+      "Recall (Sensitivity)": 0.9048,
+      "Specificity": 0.9861,
+      "F1-Score": 0.9383,
+      "ROC-AUC": 0.9825,
+      "TP": 38,
+      "TN": 71,
+      "FP": 1,
+      "FN": 4
+    },
+    {
+      "Model": "Decision Tree",
+      "Type": "Machine Learning",
+      "Accuracy": 0.9123,
+      "Precision": 0.9444,
+      "Recall (Sensitivity)": 0.8095,
+      "Specificity": 0.9722,
+      "F1-Score": 0.8718,
+      "ROC-AUC": 0.9501,
+      "TP": 34,
+      "TN": 70,
+      "FP": 2,
+      "FN": 8
+    }
+  ],
+  "best_overall_model": "Support Vector Machine",
+  "clinical_focus": "Sensitivity (Recall for Malignant cases) is prioritized because false negatives delay critical oncology interventions, whereas false positives lead to standard follow-up biopsies."
+}

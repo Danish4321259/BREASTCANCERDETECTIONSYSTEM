@@ -1,0 +1,14 @@
+{
+  "model_name": "Artificial Neural Network (ANN)",
+  "accuracy": 0.9825,
+  "precision": 1.0,
+  "recall_sensitivity": 0.9524,
+  "specificity": 1.0,
+  "f1_score": 0.9756,
+  "roc_auc": 0.9937,
+  "tp": 40,
+  "tn": 72,
+  "fp": 0,
+  "fn": 2,
+  "epochs_trained": 37
+}

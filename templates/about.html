@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}About & Technical Documentation - Breast Cancer Detection System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="mb-4 pb-2 border-bottom">
+    <div class="badge bg-primary text-white mb-2">Master of Computer Applications (MCA) Project</div>
+    <h2 class="fw-bold text-navy mb-1">
+      <i class="bi bi-book-half text-primary me-2"></i> System Architecture &amp; Research Documentation
+    </h2>
+    <p class="text-secondary mb-0">
+      Academic documentation detailing dataset provenance, mathematical formulations, preprocessing pipelines, model architectures, and clinical evaluation.
+    </p>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <!-- Left Navigation / Table of Contents -->
+    <div class="col-lg-3 col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 80px;">
+        <div class="card-header bg-white py-3 fw-bold border-bottom">
+          <i class="bi bi-list-nested me-1"></i> Documentation Index
+        </div>
+        <div class="list-group list-group-flush small">
+          <a href="#objectives" class="list-group-item list-group-item-action">1. Project Objectives</a>
+          <a href="#dataset" class="list-group-item list-group-item-action">2. Dataset & Cytology</a>
+          <a href="#preprocessing" class="list-group-item list-group-item-action">3. Preprocessing Pipeline</a>
+          <a href="#ml-algorithms" class="list-group-item list-group-item-action">4. Machine Learning Models</a>
+          <a href="#ann-architecture" class="list-group-item list-group-item-action">5. Deep Learning ANN</a>
+          <a href="#clinical-metrics" class="list-group-item list-group-item-action">6. Clinical Evaluation & Trade-offs</a>
+          <a href="#limitations" class="list-group-item list-group-item-action">7. Limitations & Ethical Scope</a>
+          <a href="#future-scope" class="list-group-item list-group-item-action">8. Future Enhancements</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Documentation Content -->
+    <div class="col-lg-9 col-md-8">
+      
+      <!-- 1. Objectives -->
+      <section id="objectives" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-bullseye text-primary me-2"></i> 1. Project Objectives</h4>
+        <p class="text-secondary">
+          Breast cancer is among the most diagnosed malignancies worldwide. Early and precise diagnostic triage significantly reduces patient mortality. The primary goals of this project are:
+        </p>
+        <ul class="text-secondary">
+          <li><strong>Automated Classification:</strong> Classify cytological breast masses into <em>Benign (non-cancerous)</em> or <em>Malignant (cancerous)</em> based on 30 quantitative nuclear features.</li>
+          <li><strong>Zero Data Leakage:</strong> Implement standard clinical data science rigor, ensuring feature scalers are fit strictly on training folds.</li>
+          <li><strong>Comparative Benchmarking:</strong> Comprehensively evaluate 6 classical machine learning algorithms alongside a deep Artificial Neural Network (ANN).</li>
+          <li><strong>Sensitivity-Centric Evaluation:</strong> Maximize Malignant Recall (Sensitivity) to minimize critical False Negatives while keeping false alarm rates low.</li>
+          <li><strong>End-to-End Deployment:</strong> Provide an interactive, responsive web application backed by Flask and modern UI components.</li>
+        </ul>
+      </section>
+
+      <!-- 2. Dataset -->
+      <section id="dataset" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-database text-info me-2"></i> 2. Wisconsin Diagnostic Breast Cancer (WDBC)</h4>
+        <p class="text-secondary">
+          The dataset was collected by Dr. William H. Wolberg, W. Nick Street, and Olvi L. Mangasarian from the University of Wisconsin Hospitals. Features were extracted from digitized images of fine needle aspirates (FNA) of breast tissue.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead class="table-light">
+              <tr>
+                <th>Property</th>
+                <th>Specification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Total Instances</td><td>569 samples (212 Malignant, 357 Benign)</td></tr>
+              <tr><td>Input Dimensionality</td><td>30 continuous, real-valued numerical features</td></tr>
+              <tr><td>Missing Values</td><td>0 (100% complete dataset)</td></tr>
+              <tr><td>Feature Groups</td><td>10 underlying physical characteristics evaluated across Mean, Standard Error, and Worst (Largest)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 3. Preprocessing -->
+      <section id="preprocessing" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-funnel text-success me-2"></i> 3. Data Preprocessing &amp; Pipeline</h4>
+        <p class="text-secondary">
+          Feature ranges vary drastically in raw measurements (e.g., <code>mean area</code> ranges from 143 to 2,501 µm², while <code>mean fractal dimension</code> ranges from 0.05 to 0.09). Without normalization, distance-based algorithms (SVM, KNN) and gradient-based neural networks would be dominated by high-magnitude dimensions.
+        </p>
+        <div class="p-3 bg-light rounded-3 small text-secondary mb-3">
+          <strong>Pipeline Protocol:</strong><br />
+          1. <code>X, y</code> Separation &amp; Target Mapping: <code>1 = Malignant (positive)</code>, <code>0 = Benign (negative)</code>.<br />
+          2. Stratified Split: 80% Training (455 samples) and 20% Held-Out Testing (114 samples) maintaining 37.3% Malignant balance.<br />
+          3. <code>StandardScaler</code> fit strictly on <code>X_train</code>: \( z = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}} \).<br />
+          4. Serialization using <code>joblib</code> to ensure reproducible runtime inference.
+        </div>
+      </section>
+
+      <!-- 4. ML Models -->
+      <section id="ml-algorithms" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-cpu text-primary me-2"></i> 4. Machine Learning Algorithms</h4>
+        <div class="row g-3 small">
+          <div class="col-md-6">
+            <div class="p-3 border rounded h-100">
+              <h6 class="fw-bold text-primary">Support Vector Machine (SVM)</h6>
+              <p class="text-secondary mb-0">Radial Basis Function (RBF) kernel with Platt probability calibration. Maximizes soft margin distance between classes in high-dimensional Hilbert space.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded h-100">
+              <h6 class="fw-bold text-primary">Logistic Regression</h6>
+              <p class="text-secondary mb-0">L2 (Ridge) regularized log-odds estimator using L-BFGS solver. High interpretability and well-calibrated posterior probabilities.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded h-100">
+              <h6 class="fw-bold text-primary">Random Forest Classifier</h6>
+              <p class="text-secondary mb-0">Ensemble of 150 bootstrapped decision trees with feature sub-sampling. Highly resilient against feature collinearity.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded h-100">
+              <h6 class="fw-bold text-primary">Gradient Boosting Classifier</h6>
+              <p class="text-secondary mb-0">Sequential additive stage-wise learning optimizing pseudo-residuals. Captures nuanced non-linear decision boundaries.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. ANN -->
+      <section id="ann-architecture" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-bezier2 text-danger me-2"></i> 5. Deep Learning Architecture (ANN)</h4>
+        <p class="text-secondary">
+          Implemented in TensorFlow / Keras with the following topological design:
+        </p>
+        <ul class="text-secondary small">
+          <li><strong>Input Layer:</strong> 30 nodes corresponding to normalized nuclear features.</li>
+          <li><strong>Hidden Layer 1:</strong> 64 Dense neurons with Rectified Linear Unit (ReLU) activation: \( f(x) = \max(0, x) \).</li>
+          <li><strong>Dropout Layer 1:</strong> 30% dropout rate to disable random co-adapted neurons during forward passes.</li>
+          <li><strong>Hidden Layer 2:</strong> 32 Dense neurons with ReLU activation.</li>
+          <li><strong>Dropout Layer 2:</strong> 20% dropout rate.</li>
+          <li><strong>Output Layer:</strong> 1 Dense neuron with Sigmoid activation: \( \sigma(z) = \frac{1}{1 + e^{-z}} \). Represents \( P(\text{Malignancy} \mid X) \).</li>
+          <li><strong>Loss Function:</strong> Binary Cross-Entropy: \( \mathcal{L} = -\frac{1}{N}\sum [y \log \hat{y} + (1-y)\log(1-\hat{y})] \).</li>
+          <li><strong>Optimization:</strong> Adam with learning rate \(\alpha = 0.001\), batch size 16, and early stopping on validation loss.</li>
+        </ul>
+      </section>
+
+      <!-- 6. Clinical Metrics -->
+      <section id="clinical-metrics" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-heart-pulse text-danger me-2"></i> 6. Clinical Evaluation &amp; Trade-offs</h4>
+        <p class="text-secondary">
+          In clinical medicine, simple classification accuracy is insufficient. We analyze the asymmetric cost matrix:
+        </p>
+        <div class="row g-3 small text-secondary mb-3">
+          <div class="col-md-6">
+            <div class="p-3 bg-danger bg-opacity-10 border border-danger rounded">
+              <strong class="text-danger">False Negative (Type II Error):</strong>
+              <p class="mb-0 mt-1">A patient with malignant breast cancer is incorrectly classified as benign. <strong>Consequence:</strong> Delayed diagnosis, cancer progression, metastasis, potentially fatal outcome.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 bg-warning bg-opacity-10 border border-warning rounded">
+              <strong class="text-warning text-dark">False Positive (Type I Error):</strong>
+              <p class="mb-0 mt-1">A patient with a benign fibroadenoma is flagged as malignant. <strong>Consequence:</strong> Patient psychological anxiety, followed by standard confirmatory core-needle biopsy which clarifies benign status.</p>
+            </div>
+          </div>
+        </div>
+        <p class="text-secondary small mb-0">
+          Thus, models in this system are ranked prioritizing <strong>Sensitivity (Recall)</strong> and <strong>ROC-AUC</strong>, ensuring that true malignancies are rarely overlooked.
+        </p>
+      </section>
+
+      <!-- 7. Limitations -->
+      <section id="limitations" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-shield-slash text-warning me-2"></i> 7. Limitations &amp; Ethical Considerations</h4>
+        <ul class="text-secondary small mb-0">
+          <li><strong>Sample Size Constraints:</strong> The WDBC dataset has 569 cases from a single clinical hospital in Wisconsin in the 1990s. It may not reflect contemporary demographics or varied image acquisition hardware.</li>
+          <li><strong>Feature Engineering Dependency:</strong> The inputs are secondary morphological summaries computed from segmentation software, rather than raw histological slides or whole slide imaging (WSI).</li>
+          <li><strong>Model Calibration:</strong> Machine learning probabilities reflect mathematical distance to decision hyperplanes, not an individual patient's biologically calibrated lifetime risk.</li>
+        </ul>
+      </section>
+
+      <!-- 8. Future Scope -->
+      <section id="future-scope" class="card border-0 shadow-sm rounded-4 p-4">
+        <h4 class="fw-bold text-navy mb-3"><i class="bi bi-rocket-takeoff text-primary me-2"></i> 8. Future Scope</h4>
+        <ul class="text-secondary small mb-0">
+          <li>Integration of Convolutional Neural Networks (CNNs / Vision Transformers) directly on raw digital mammograms and whole-slide histopathology images (e.g., CBIS-DDSM or BreakHis datasets).</li>
+          <li>Incorporate patient multi-omics (BRCA1/BRCA2 genomic profiles, hormone receptor status ER/PR/HER2).</li>
+          <li>Explainable AI (XAI) using SHAP (Shapley Additive exPlanations) and Grad-CAM feature heatmaps for cytopathologists.</li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
